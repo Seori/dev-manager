@@ -1,0 +1,109 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DevManager.App.ViewModels"
+        xmlns:data="using:DevManager.Data"
+        x:Class="DevManager.App.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/app.ico" Title="" Width="400" Height="680" CanResize="True" MinWidth="320" MinHeight="420" WindowStartupLocation="CenterScreen"
+        WindowDecorations="BorderOnly"
+        Background="{StaticResource Bg}" FontFamily="{StaticResource AppFont}">
+
+  <Grid>
+    <!-- 초기 설정 -->
+    <Border IsVisible="{Binding IsSetup}" Width="240" VerticalAlignment="Center" HorizontalAlignment="Center"
+            Background="Transparent" BorderThickness="0" Margin="80,36,80,28">
+      <StackPanel Spacing="10">
+        <TextBlock Text="초기 설정" FontSize="20" FontWeight="Bold"/>
+        <TextBlock Text="마스터(관리자) 계정을 만듭니다" Foreground="{StaticResource Sub}"/>
+        <TextBox Text="{Binding SetupName}" Watermark="이름"/>
+        <ComboBox ItemsSource="{Binding JobTitles}" SelectedItem="{Binding SetupJobTitle}" PlaceholderText="직급" HorizontalAlignment="Stretch"/>
+        <TextBox Text="{Binding SetupLoginId}" Watermark="아이디"/>
+        <TextBox Text="{Binding SetupPassword}" PasswordChar="●" Watermark="비밀번호 (10자 이상, 영문+숫자)"/>
+        <TextBox Text="{Binding SetupConfirm}" PasswordChar="●" Watermark="비밀번호 확인"/>
+        <TextBlock Text="{Binding Error}" Foreground="#F87171" TextWrapping="Wrap"/>
+        <Button Content="계정 만들기" Command="{Binding CreateAdminCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                Background="{StaticResource Accent}" Foreground="#06201C" FontWeight="Bold"/>
+      </StackPanel>
+    </Border>
+
+    <!-- 로그인 -->
+    <Border IsVisible="{Binding IsLogin}" Width="240" VerticalAlignment="Center" HorizontalAlignment="Center"
+            Background="Transparent" BorderThickness="0" Margin="80,36,80,28">
+      <StackPanel Spacing="10">
+        <TextBlock Text="개발관리" FontSize="22" FontWeight="Bold"/>
+        <TextBlock Text="로그인" Foreground="{StaticResource Sub}"/>
+        <TextBox x:Name="LoginIdBox" Text="{Binding LoginId}" Watermark="아이디"/>
+        <TextBox x:Name="PasswordBox" Text="{Binding Password}" PasswordChar="●" Watermark="비밀번호"/>
+        <CheckBox Content="아이디 저장" IsChecked="{Binding SaveLoginId}" FontSize="13"/>
+        <TextBlock Text="{Binding Error}" Foreground="#F87171" TextWrapping="Wrap"/>
+        <Button Content="로그인" Command="{Binding DoLoginCommand}" IsDefault="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                Background="{StaticResource Accent}" Foreground="#06201C" FontWeight="Bold"/>
+      </StackPanel>
+    </Border>
+
+    <!-- 메인 -->
+    <Grid IsVisible="{Binding IsMain}" ColumnDefinitions="*" Margin="12,28,12,12">
+
+      <Border Grid.Column="0" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10">
+        <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+          <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="18,18,18,12">
+            <Border Width="40" Height="40" CornerRadius="20" Background="{StaticResource Accent}" VerticalAlignment="Center">
+              <TextBlock Text="{Binding Initial}" Foreground="#06201C" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center" Spacing="1">
+              <TextBlock Text="{Binding DisplayName}" FontSize="16" FontWeight="Bold"/>
+              <TextBlock Text="{Binding JobTitleName}" FontSize="13" Foreground="{StaticResource Sub}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+              <Border IsVisible="{Binding HasUnread}" Background="{StaticResource Accent}" CornerRadius="10" Padding="8,2">
+                <TextBlock Text="{Binding UnreadCount, StringFormat='알림 {0}'}" Foreground="#06201C" FontWeight="Bold" FontSize="12"/>
+              </Border>
+              <Button Content="로그아웃" Command="{Binding LogoutCommand}" FontSize="12"/>
+            </StackPanel>
+          </Grid>
+
+          <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="18,0,18,8">
+            <TextBlock Text="{Binding ListHeader}" Foreground="{StaticResource Sub}" FontSize="12" VerticalAlignment="Center"/>
+          </Grid>
+
+          <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="18,0,18,10">
+            <Button Content="+ 개발 등록" Command="{Binding NewRequirementCommand}" Background="{StaticResource Accent}" Foreground="#06201C" FontWeight="Bold"/>
+            <Button Content="계정 추가" Command="{Binding OpenUserFormCommand}" IsVisible="{Binding IsAdmin}"/>
+            <Button Content="새로고침" Command="{Binding RefreshCommand}"/>
+          </StackPanel>
+
+          <ListBox Grid.Row="3" ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}" Background="Transparent" Margin="8,0">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="data:RequirementRow">
+                <StackPanel Spacing="3" Margin="6,6">
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="{Binding DocNo}" FontSize="12" Foreground="{StaticResource Accent}" FontWeight="Medium"/>
+                    <TextBlock Text="NEW" IsVisible="{Binding IsNew}" FontSize="10" FontWeight="Bold" Foreground="{StaticResource Accent}"/>
+                  </StackPanel>
+                  <TextBlock Text="{Binding Title}" FontSize="14" TextTrimming="CharacterEllipsis"/>
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="{Binding AssigneeName}" FontSize="12" Foreground="{StaticResource Sub}"/>
+                    <TextBlock Text="미배정" IsVisible="{Binding IsUnassigned}" FontSize="12" Foreground="{StaticResource Sub}"/>
+                    <TextBlock Text="· 미확인" IsVisible="{Binding IsUnconfirmed}" FontSize="12" FontWeight="Medium" Foreground="#F4B43C"/>
+                    <TextBlock Text="· 확인" IsVisible="{Binding IsConfirmed}" FontSize="12" FontWeight="Medium" Foreground="{StaticResource Accent}"/>
+                  </StackPanel>
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+
+          <TextBlock Grid.Row="4" Text="{Binding StatusText}" Foreground="{StaticResource Sub}" FontSize="12" Margin="18,10"/>
+        </Grid>
+      </Border>
+    </Grid>
+
+    <!-- 창 이동 영역과 닫기(X) -->
+    <Border x:Name="DragArea" Height="26" VerticalAlignment="Top" Background="Transparent" Margin="0,0,40,0"/>
+    <Button x:Name="CloseButton" Width="28" Height="24" Padding="0" Margin="0,2,6,0"
+            HorizontalAlignment="Right" VerticalAlignment="Top" Background="Transparent" BorderThickness="0"
+            HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Cursor="Hand">
+      <Path Data="M 0,0 L 10,10 M 10,0 L 0,10" Stroke="{StaticResource Sub}" StrokeThickness="1.6" StrokeLineCap="Round"
+            Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Button>
+  </Grid>
+</Window>

@@ -1,0 +1,128 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DevManager.App.ViewModels"
+        x:Class="DevManager.App.Views.DetailWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/app.ico" Title="" Width="400" Height="680" CanResize="True" MinWidth="340" MinHeight="420" ShowInTaskbar="False"
+        WindowDecorations="BorderOnly"
+        Background="{StaticResource Bg}" FontFamily="{StaticResource AppFont}">
+  <Window.Styles>
+    <Style Selector="CalendarDatePicker">
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="MinHeight" Value="26"/>
+      <Setter Property="Height" Value="28"/>
+    </Style>
+    <!-- 달력 팝업을 60% 크기로 축소 -->
+    <Style Selector="Calendar">
+      <Setter Property="RenderTransform" Value="scale(0.6)"/>
+      <Setter Property="RenderTransformOrigin" Value="0%,0%"/>
+    </Style>
+  </Window.Styles>
+  <Grid>
+    <Grid Margin="12,28,12,12">
+      <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10">
+        <Grid>
+          <!-- 상세 -->
+          <ScrollViewer IsVisible="{Binding ShowDetail}">
+            <StackPanel Margin="22" Spacing="14">
+              <TextBlock Text="{Binding DetailDocNo}" Foreground="{StaticResource Accent}" FontWeight="Medium"/>
+              <TextBlock Text="{Binding DetailTitle}" FontSize="19" FontWeight="Bold" TextWrapping="Wrap"/>
+              <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="12">
+                <StackPanel><TextBlock Text="카테고리" Foreground="{StaticResource Sub}" FontSize="11"/><TextBlock Text="{Binding DetailCategory}"/></StackPanel>
+                <StackPanel Grid.Column="1"><TextBlock Text="요청자" Foreground="{StaticResource Sub}" FontSize="11"/><TextBlock Text="{Binding DetailRequester}"/></StackPanel>
+                <StackPanel Grid.Row="1"><TextBlock Text="완료 요청일" Foreground="{StaticResource Sub}" FontSize="11"/><TextBlock Text="{Binding DetailDue}"/></StackPanel>
+                <StackPanel Grid.Row="1" Grid.Column="1"><TextBlock Text="배포일" Foreground="{StaticResource Sub}" FontSize="11"/><TextBlock Text="{Binding DetailDeploy}"/></StackPanel>
+                <StackPanel Grid.Row="2"><TextBlock Text="개발 시작일" Foreground="{StaticResource Sub}" FontSize="11"/><TextBlock Text="{Binding DetailStart}"/></StackPanel>
+                <StackPanel Grid.Row="2" Grid.Column="1"><TextBlock Text="개발 종료일" Foreground="{StaticResource Sub}" FontSize="11"/><TextBlock Text="{Binding DetailEnd}"/></StackPanel>
+                <StackPanel Grid.Row="3" Grid.Column="1"><TextBlock Text="상태" Foreground="{StaticResource Sub}" FontSize="11"/><TextBlock Text="{Binding DetailStatus}"/></StackPanel>
+                <StackPanel Grid.Row="3"><TextBlock Text="담당자" Foreground="{StaticResource Sub}" FontSize="11"/><TextBlock Text="{Binding DetailAssignee}"/></StackPanel>
+              </Grid>
+              <StackPanel Spacing="4">
+                <TextBlock Text="내용" Foreground="{StaticResource Sub}" FontSize="11"/>
+                <TextBlock Text="{Binding DetailDesc}" TextWrapping="Wrap" LineHeight="22"/>
+              </StackPanel>
+              <StackPanel IsVisible="{Binding ShowCompletedInfo}" Spacing="4">
+                <TextBlock Text="개발완료 모듈" Foreground="{StaticResource Sub}" FontSize="11"/>
+                <TextBlock Text="{Binding DetailCompletedModules}" TextWrapping="Wrap" LineHeight="22"/>
+                <TextBlock Text="{Binding DetailCompletedAt}" Foreground="{StaticResource Sub}" FontSize="11"/>
+              </StackPanel>
+              <StackPanel IsVisible="{Binding IsAdmin}" Spacing="6">
+                <TextBlock Text="담당자 배정 (마스터 전용)" Foreground="{StaticResource Sub}" FontSize="11"/>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <ComboBox ItemsSource="{Binding AssignOptions}" SelectedItem="{Binding SelectedAssignee}" Width="220"/>
+                  <Button Content="배정" Command="{Binding AssignCommand}"/>
+                </StackPanel>
+              </StackPanel>
+              <TextBlock Text="{Binding DetailMessage}" Foreground="{StaticResource Accent}"/>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="수정" Command="{Binding EditRequirementCommand}" IsVisible="{Binding CanEdit}"
+                        Background="{StaticResource Accent}" Foreground="#06201C" FontWeight="Bold"/>
+                <Button Content="개발 완료" Command="{Binding OpenCompleteCommand}" IsVisible="{Binding CanComplete}" FontWeight="Bold"/>
+              </StackPanel>
+            </StackPanel>
+          </ScrollViewer>
+
+          <!-- 등록/수정 폼 -->
+          <ScrollViewer IsVisible="{Binding ShowForm}">
+            <StackPanel Margin="22" Spacing="10">
+              <TextBlock Text="{Binding FormHeader}" FontSize="17" FontWeight="Bold" TextWrapping="Wrap"/>
+              <TextBox Text="{Binding FormTitle}" Watermark="개발 제목 *" IsEnabled="{Binding CanEditCore}"/>
+              <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding FormCategory}" HorizontalAlignment="Stretch" IsEnabled="{Binding CanEditCore}"/>
+              <TextBox Text="{Binding FormDesc}" Watermark="내용 *" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="110"/>
+              <ComboBox ItemsSource="{Binding UserOptions}" SelectedItem="{Binding FormRequester}" PlaceholderText="요청자 선택 *" HorizontalAlignment="Stretch"/>
+              <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                <CalendarDatePicker SelectedDate="{Binding FormDue}" Watermark="완료 요청일" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" HorizontalAlignment="Stretch"/>
+                <CalendarDatePicker Grid.Column="1" SelectedDate="{Binding FormDeploy}" Watermark="배포일 (마스터)" IsEnabled="{Binding IsAdmin}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" HorizontalAlignment="Stretch"/>
+                <CalendarDatePicker Grid.Row="1" SelectedDate="{Binding FormStart}" Watermark="개발 시작일 (담당자)" IsEnabled="{Binding CanEditDevDates}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" HorizontalAlignment="Stretch"/>
+                <CalendarDatePicker Grid.Row="1" Grid.Column="1" SelectedDate="{Binding FormEnd}" Watermark="개발 종료일 (담당자)" IsEnabled="{Binding CanEditDevDates}" SelectedDateFormat="Custom" CustomDateFormatString="yyyy-MM-dd" HorizontalAlignment="Stretch"/>
+              </Grid>
+              <TextBlock Text="{Binding FormError}" Foreground="#F87171" TextWrapping="Wrap"/>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="저장" Command="{Binding SaveFormCommand}" Background="{StaticResource Accent}" Foreground="#06201C" FontWeight="Bold"/>
+                <Button Content="취소" Command="{Binding CancelFormCommand}"/>
+              </StackPanel>
+            </StackPanel>
+          </ScrollViewer>
+
+          <!-- 계정 추가 -->
+          <ScrollViewer IsVisible="{Binding ShowUserForm}">
+            <StackPanel Margin="22" Spacing="10">
+              <TextBlock Text="계정 추가" FontSize="17" FontWeight="Bold"/>
+              <TextBox Text="{Binding NewUserName}" Watermark="이름"/>
+              <ComboBox ItemsSource="{Binding JobTitles}" SelectedItem="{Binding NewUserJobTitle}" HorizontalAlignment="Stretch"/>
+              <TextBox Text="{Binding NewUserLoginId}" Watermark="아이디"/>
+              <TextBox Text="{Binding NewUserPassword}" PasswordChar="●" Watermark="비밀번호 (10자 이상, 영문+숫자)"/>
+              <TextBlock Text="{Binding UserFormMessage}" Foreground="{StaticResource Accent}" TextWrapping="Wrap"/>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="만들기" Command="{Binding SaveUserCommand}" Background="{StaticResource Accent}" Foreground="#06201C" FontWeight="Bold"/>
+                <Button Content="닫기" Command="{Binding CloseUserFormCommand}"/>
+              </StackPanel>
+            </StackPanel>
+          </ScrollViewer>
+
+          <!-- 개발 완료 기록 -->
+          <ScrollViewer IsVisible="{Binding ShowComplete}">
+            <StackPanel Margin="22" Spacing="10">
+              <TextBlock Text="개발 완료" FontSize="17" FontWeight="Bold"/>
+              <TextBlock Text="{Binding DetailDocNo}" Foreground="{StaticResource Accent}" FontWeight="Medium"/>
+              <TextBlock Text="개발완료 모듈 *" Foreground="{StaticResource Sub}" FontSize="11"/>
+              <TextBox Text="{Binding CompleteModules}" Watermark="완료한 모듈을 한 줄에 하나씩 입력" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="160"/>
+              <TextBlock Text="{Binding CompleteError}" Foreground="#F87171" TextWrapping="Wrap"/>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="완료 처리" Command="{Binding SaveCompleteCommand}" Background="{StaticResource Accent}" Foreground="#06201C" FontWeight="Bold"/>
+                <Button Content="취소" Command="{Binding CancelCompleteCommand}"/>
+              </StackPanel>
+            </StackPanel>
+          </ScrollViewer>
+        </Grid>
+      </Border>
+    </Grid>
+    <Border x:Name="DragArea" Height="26" VerticalAlignment="Top" Background="Transparent" Margin="0,0,40,0"/>
+    <Button x:Name="CloseButton" Width="28" Height="24" Padding="0" Margin="0,2,6,0"
+            HorizontalAlignment="Right" VerticalAlignment="Top" Background="Transparent" BorderThickness="0"
+            HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Cursor="Hand">
+      <Path Data="M 0,0 L 10,10 M 10,0 L 0,10" Stroke="{StaticResource Sub}" StrokeThickness="1.6" StrokeLineCap="Round"
+            Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Button>
+  </Grid>
+</Window>

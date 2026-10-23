@@ -1,0 +1,24 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="DevManager.App.App"
+             xmlns:local="using:DevManager.App"
+             RequestedThemeVariant="Dark">
+
+    <Application.Resources>
+        <FontFamily x:Key="AppFont">avares://DevManager.App/Assets/Fonts#Pretendard</FontFamily>
+        <FontFamily x:Key="ContentControlThemeFontFamily">avares://DevManager.App/Assets/Fonts#Pretendard</FontFamily>
+        <SolidColorBrush x:Key="Bg" Color="#0B0F14"/>
+        <SolidColorBrush x:Key="Panel" Color="#141A22"/>
+        <SolidColorBrush x:Key="Line" Color="#232C38"/>
+        <SolidColorBrush x:Key="Sub" Color="#9AA6B5"/>
+        <SolidColorBrush x:Key="Accent" Color="#2DD4BF"/>
+    </Application.Resources>
+
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+</Application>
